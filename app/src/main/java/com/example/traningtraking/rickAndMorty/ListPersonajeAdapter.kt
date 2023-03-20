@@ -16,7 +16,7 @@ import com.example.traningtraking.R
 import com.example.traningtraking.User
 import com.squareup.picasso.Picasso
 
-class ListPersonajeAdapter(var users: List<Results>): RecyclerView.Adapter<ListPersonajeAdapter.ViewHolder>() {
+class ListPersonajeAdapter(var users: List<Results>,var eve:Evento): RecyclerView.Adapter<ListPersonajeAdapter.ViewHolder>() {
 
     lateinit var context:Context
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -29,6 +29,7 @@ class ListPersonajeAdapter(var users: List<Results>): RecyclerView.Adapter<ListP
         holder.tvName.text= users.get(position).name
         Picasso.get().load(users.get(position).image).into(holder.imName)
         holder.cvRM.setOnClickListener(View.OnClickListener {
+            eve.onclick(users.get(position).id!!)
             Toast.makeText(context,users.get(position).name,Toast.LENGTH_LONG).show();
         })
     }

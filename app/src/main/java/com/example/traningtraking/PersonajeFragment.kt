@@ -5,12 +5,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.example.Personaje
-import com.example.traningtraking.rickAndMorty.Evento
+import com.example.example.Results
 import com.example.traningtraking.rickAndMorty.ListPersonajeAdapter
 import com.example.traningtraking.rickAndMorty.RickAndMortyAPI
+import com.squareup.picasso.Picasso
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,21 +27,19 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [ListRMFragment.newInstance] factory method to
+ * Use the [PersonajeFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-public class ListRMFragment : Fragment() {
+class PersonajeFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-    private var eve: Evento? = null
+    private var param1: Int? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+            param1 = it.getInt(ARG_PARAM1)
+
         }
     }
 
@@ -46,36 +47,27 @@ public class ListRMFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_list_r_m, container, false)
+        val view = inflater.inflate(R.layout.fragment_personaje, container, false)
+        val imPersonaje = view.findViewById<ImageView>(R.id.im_personajerm)
+        val tvPersonaje = view.findViewById<TextView>(R.id.tv_nombre)
         val retrofit = Retrofit.Builder()
             .baseUrl("https://rickandmortyapi.com/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         var movieAPI = retrofit.create(RickAndMortyAPI::class.java)
-        movieAPI.getPersonajes().enqueue(object : Callback<Personaje> {
-            override fun onResponse(call: Call<Personaje>, response: Response<Personaje>) {
-                // Procesar respuesta exitosa
-                var users = response.body()!!.results
-                var rvUser =  view.findViewById<RecyclerView>(R.id.rv_user)
-                rvUser.setHasFixedSize(true)
-                rvUser.layoutManager = LinearLayoutManager(context)
+        movieAPI.getPersonaje(param1!!).enqueue(object :Callback<Results>{
+            override fun onResponse(call: Call<Results>, response: Response<Results>) {
 
-                var adapter = ListPersonajeAdapter(users,eve!!)
-
-                rvUser.adapter= adapter
-                rvUser.visibility = View.VISIBLE
-
+                tvPersonaje.setText(response.body()!!.name)
+                Picasso.get().load(response.body()!!.image).into(imPersonaje)
             }
-            override fun onFailure(call: Call<Personaje>, t: Throwable) {
+            override fun onFailure(call: Call<Results>, t: Throwable) {
                 // Procesar error en la petición
             }
-        })
 
+        })
         // Inflate the layout for this fragment
-        return view;
-    }
-    fun setEvento(e:Evento){
-        eve=e;
+        return view
     }
 
     companion object {
@@ -84,16 +76,16 @@ public class ListRMFragment : Fragment() {
          * this fragment using the provided parameters.
          *
          * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ListRMFragment.
+
+         * @return A new instance of fragment PersonajeFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ListRMFragment().apply {
+        fun newInstance(param1: Int) =
+            PersonajeFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putInt(ARG_PARAM1, param1!!)
+
                 }
             }
     }
